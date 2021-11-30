@@ -78,11 +78,26 @@ app.post("/todos", checksExistsUserAccount, (request, response) => {
   return response.json(users);
 });
 
+//Alterar title e deadline do todo
 app.put("/todos/:id", checksExistsUserAccount, (request, response) => {});
 
-app.patch("/todos/:id/done", checksExistsUserAccount, (request, response) => {
-  // Complete aqui
-});
+app.patch(
+  "/todos/:title/done",
+  checksExistsUserAccount,
+  (request, response) => {
+    const { username } = request;
+    const { title } = request.params;
+
+    const user = users.find((u) => u.username == username);
+    const indexTodo = user.todos.findIndex((t) => t.title == title);
+    if (indexTodo != -1) {
+      user.todos[indexTodo].done = true;
+      return response.json(user);
+    } else {
+      return response.json({ error: "Todo Not Found" });
+    }
+  }
+);
 
 app.delete("/todos/:title", checksExistsUserAccount, (request, response) => {
   const { title } = request.params;
