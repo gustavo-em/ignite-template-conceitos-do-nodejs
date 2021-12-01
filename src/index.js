@@ -49,7 +49,7 @@ app.get("/todos", checksExistsUserAccount, (request, response) => {
   const { username } = request;
 
   const userFind = users.find((u) => (u.username = username));
-
+  console.log(userFind);
   if (userFind) {
     return response.json(userFind.todos);
   }
