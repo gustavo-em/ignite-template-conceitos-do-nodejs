@@ -25,7 +25,7 @@ function checksExistsUserAccount(request, response, next) {
 
 //new user
 app.post("/users", (request, response) => {
-  const { username, user } = request.body;
+  const { username, name } = request.body;
 
   const userAlreadyExists = users.some((u) => u.username == username);
   if (userAlreadyExists) {
@@ -34,12 +34,13 @@ app.post("/users", (request, response) => {
 
   const userPost = {
     id: uuidv4(),
-    user,
+    name,
     username,
     todos: [],
   };
 
   users.push(userPost);
+
   return response.status(201).json(userPost);
 });
 
@@ -70,12 +71,13 @@ app.post("/todos", checksExistsUserAccount, (request, response) => {
 
   const index = users.findIndex((i) => i == user);
   if (index != -1) {
-    users[0].todos.push(todoPost);
+    users[index].todos.push(todoPost);
+    return response.status(201).json(todoPost);
   } else {
     return response(400).json({ error: "User Not Found" });
   }
 
-  return response.json(users);
+  
 });
 
 //Alterar title e deadline do todo
