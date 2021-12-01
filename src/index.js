@@ -76,8 +76,6 @@ app.post("/todos", checksExistsUserAccount, (request, response) => {
   } else {
     return response(400).json({ error: "User Not Found" });
   }
-
-  
 });
 
 //Alterar title e deadline do todo
@@ -112,7 +110,7 @@ app.delete("/todos/:title", checksExistsUserAccount, (request, response) => {
   //console.log(indexTodo);
   if (indexTodo != -1) {
     users[indexUser].todos.splice(indexTodo, 1);
-    return response.json(users[indexUser]);
+    return response.status(204).json(users[indexUser]);
   } else {
     return response.json({ error: "Todo Dont Found" });
   }
