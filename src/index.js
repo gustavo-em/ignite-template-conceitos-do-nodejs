@@ -46,7 +46,7 @@ app.post("/users", (request, response) => {
 
 //get todos by username
 app.get("/todos", checksExistsUserAccount, (request, response) => {
-  const username = request.username;
+  const { username } = request;
 
   const userFind = users.find((u) => (u.username = username));
 
@@ -79,40 +79,51 @@ app.post("/todos", checksExistsUserAccount, (request, response) => {
 });
 
 //Alterar title e deadline do todo
-app.put("/todos/:id", checksExistsUserAccount, (request, response) => {});
+app.put("/todos/:id", checksExistsUserAccount, (request, response) => {
+  const { username } = request;
+  const { id } = request.params;
+  const { title, deadline } = request.body;
 
-app.patch(
-  "/todos/:title/done",
-  checksExistsUserAccount,
-  (request, response) => {
-    const { username } = request;
-    const { title } = request.params;
-
-    const user = users.find((u) => u.username == username);
-    const indexTodo = user.todos.findIndex((t) => t.title == title);
-    if (indexTodo != -1) {
-      user.todos[indexTodo].done = true;
-      return response.json(user);
-    } else {
-      return response.json({ error: "Todo Not Found" });
-    }
-  }
-);
-
-app.delete("/todos/:title", checksExistsUserAccount, (request, response) => {
-  const { title } = request.params;
-
-  const username = request.username;
   const indexUser = users.findIndex((u) => u.username == username);
+  const todo = users[indexUser].todos.find((t) => t.id == id);
+  if (!todo) {
+    return response.status(404).json({ error: "Todo Not Found" });
+  }
+  console.log(todo);
+  todo.title = title;
+  todo.deadline = new Date(deadline);
 
-  const indexTodo = users[indexUser].todos.findIndex((t) => t.title == title);
+  return response.json(todo);
+});
+
+app.patch("/todos/:id/done", checksExistsUserAccount, (request, response) => {
+  const { username } = request;
+  const { id } = request.params;
+
+  const user = users.find((u) => u.username == username);
+  const indexTodo = user.todos.findIndex((t) => t.id == id);
+  if (indexTodo != -1) {
+    user.todos[indexTodo].done = true;
+    return response.json(user.todos[indexTodo]);
+  } else {
+    return response.status(404).json({ error: "Todo Not Found" });
+  }
+});
+
+app.delete("/todos/:id", checksExistsUserAccount, (request, response) => {
+  const { id } = request.params;
+  const { username } = request;
+
+  const user = users.find((u) => u.username == username);
+
+  const indexTodo = user.todos.findIndex((t) => t.id == id);
 
   //console.log(indexTodo);
   if (indexTodo != -1) {
-    users[indexUser].todos.splice(indexTodo, 1);
-    return response.status(204).json(users[indexUser]);
+    user.todos.splice(indexTodo, 1);
+    return response.status(204).json(user);
   } else {
-    return response.json({ error: "Todo Dont Found" });
+    return response.status(404).json({ error: "Todo Dont Found" });
   }
 });
 
